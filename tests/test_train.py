@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import pytest
@@ -90,9 +89,9 @@ def test_train_resume(tmp_path: Path, cfg_train: DictConfig) -> None:
     HydraConfig().set_config(cfg_train)
     metric_dict_1, _ = train(cfg_train)
 
-    files = os.listdir(tmp_path / "checkpoints")
-    assert "last.ckpt" in files
-    assert "epoch_000.ckpt" in files
+    files = tmp_path / "checkpoints"
+    assert (files / "last.ckpt").exists()
+    assert (files / "epoch_000.ckpt").exists()
 
     with open_dict(cfg_train):
         cfg_train.ckpt_path = str(tmp_path / "checkpoints" / "last.ckpt")
@@ -100,9 +99,9 @@ def test_train_resume(tmp_path: Path, cfg_train: DictConfig) -> None:
 
     metric_dict_2, _ = train(cfg_train)
 
-    files = os.listdir(tmp_path / "checkpoints")
-    assert "epoch_001.ckpt" in files
-    assert "epoch_002.ckpt" not in files
+    files = tmp_path / "checkpoints"
+    assert (files / "epoch_001.ckpt").exists()
+    assert not (files / "epoch_002.ckpt").exists()
 
     assert metric_dict_1["train/acc"] < metric_dict_2["train/acc"]
     assert metric_dict_1["val/acc"] < metric_dict_2["val/acc"]
