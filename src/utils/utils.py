@@ -4,9 +4,10 @@ from typing import Any, Callable, Dict, Optional, Tuple
 
 from omegaconf import DictConfig
 
-from src.utils import pylogger, rich_utils
+from utils.pylogger import RankedLogger
+from utils.rich_utils import enforce_tags, print_config_tree
 
-log = pylogger.RankedLogger(__name__, rank_zero_only=True)
+log = RankedLogger(__name__, rank_zero_only=True)
 
 
 def extras(cfg: DictConfig) -> None:
@@ -32,12 +33,12 @@ def extras(cfg: DictConfig) -> None:
     # prompt user to input tags from command line if none are provided in the config
     if cfg.extras.get("enforce_tags"):
         log.info("Enforcing tags! <cfg.extras.enforce_tags=True>")
-        rich_utils.enforce_tags(cfg, save_to_file=True)
+        enforce_tags(cfg, save_to_file=True)
 
     # pretty print config tree using Rich library
     if cfg.extras.get("print_config"):
         log.info("Printing config tree with Rich! <cfg.extras.print_config=True>")
-        rich_utils.print_config_tree(cfg, resolve=True, save_to_file=True)
+        print_config_tree(cfg, resolve=True, save_to_file=True)
 
 
 def task_wrapper(task_func: Callable) -> Callable:
