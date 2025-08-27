@@ -5,8 +5,8 @@ from typing import Any
 
 from omegaconf import DictConfig
 
-from utils.pylogger import RankedLogger
-from utils.rich_utils import enforce_tags, print_config_tree
+from utils.persistence import save_config, save_tags
+from utils.ranked_logger import RankedLogger
 
 log = RankedLogger(__name__)
 
@@ -34,12 +34,12 @@ def extras(cfg: DictConfig) -> None:
     # prompt user to input tags from command line if none are provided in the config
     if cfg.extras.get("enforce_tags"):
         log.info("Enforcing tags! <cfg.extras.enforce_tags=True>")
-        enforce_tags(cfg, save_to_file=True)
+        save_tags(cfg)
 
     # pretty print config tree using Rich library
     if cfg.extras.get("print_config"):
         log.info("Printing config tree with Rich! <cfg.extras.print_config=True>")
-        print_config_tree(cfg, resolve=True, save_to_file=True)
+        save_config(cfg)
 
 
 def task_wrapper(task_func: Callable) -> Callable:

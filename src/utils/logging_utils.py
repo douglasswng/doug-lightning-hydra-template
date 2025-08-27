@@ -3,7 +3,7 @@ from typing import Any
 from lightning_utilities.core.rank_zero import rank_zero_only
 from omegaconf import OmegaConf
 
-from utils.pylogger import RankedLogger
+from utils.ranked_logger import RankedLogger
 
 log = RankedLogger(__name__)
 
