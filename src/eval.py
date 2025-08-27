@@ -7,16 +7,16 @@ from omegaconf import DictConfig
 
 from utils import (
     RankedLogger,
-    extras,
+    exception_wrapper,
     instantiate_loggers,
     log_hyperparameters,
-    task_wrapper,
+    process_extras,
 )
 
 log = RankedLogger(__name__)
 
 
-@task_wrapper
+@exception_wrapper
 def evaluate(cfg: DictConfig) -> tuple[dict[str, Any], dict[str, Any]]:
     """Evaluates given checkpoint on a datamodule testset.
 
@@ -71,7 +71,7 @@ def main(cfg: DictConfig) -> None:
     """
     # apply extra utilities
     # (e.g. ask for tags if none are provided in cfg, print cfg tree, etc.)
-    extras(cfg)
+    process_extras(cfg)
 
     evaluate(cfg)
 

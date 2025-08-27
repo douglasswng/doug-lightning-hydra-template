@@ -8,18 +8,18 @@ from omegaconf import DictConfig
 
 from utils import (
     RankedLogger,
-    extras,
+    exception_wrapper,
     get_metric_value,
     instantiate_callbacks,
     instantiate_loggers,
     log_hyperparameters,
-    task_wrapper,
+    process_extras,
 )
 
 log = RankedLogger(__name__)
 
 
-@task_wrapper
+@exception_wrapper
 def train(cfg: DictConfig) -> tuple[dict[str, Any], dict[str, Any]]:
     """Trains the model. Can additionally evaluate on a testset, using best weights obtained during
     training.
@@ -95,18 +95,18 @@ def main(cfg: DictConfig) -> float | None:
     :return: Optional[float] with optimized metric value.
     """
     # apply extra utilities
-    # (e.g. ask for tags if none are provided in cfg, print cfg tree, etc.)
-    extras(cfg)
+    # (e.g. disable warnings)
+    process_extras(cfg)
 
     # train the model
     metric_dict, _ = train(cfg)
 
     # safely retrieve metric value for hydra-based hyperparameter optimization
-    metric_value = get_metric_value(
-        metric_dict=metric_dict, metric_name=cfg.get("optimized_metric")
-    )
+    metric_name = cfg.get("optimized_metric")
+    if metric_name is None:
+        return None
 
-    # return optimized metric
+    metric_value = get_metric_value(metric_dict, metric_name)
     return metric_value
 
 
