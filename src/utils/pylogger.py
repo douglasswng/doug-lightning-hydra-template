@@ -18,8 +18,8 @@ class RankedLogger(logging.LoggerAdapter):
             return
 
         rank = getattr(rank_zero_only, "rank", None)
-        if rank != 0:
-            raise RuntimeError("Expect rank to be 0 when using rank_zero_only")
+
+        assert rank == 0, "Expect rank to be 0 when using rank_zero_only"
 
         msg = rank_prefixed_message(msg, rank)
         self.logger.log(level, msg)
