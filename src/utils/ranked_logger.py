@@ -13,7 +13,7 @@ class RankedLogger(logging.LoggerAdapter):
         super().__init__(logger=logging.getLogger(name))
 
     @rank_zero_only
-    def log(self, level: int, msg: str) -> None:
+    def log(self, level: int, msg: str, *args, **kwargs) -> None:
         if not self.isEnabledFor(level):
             return
 
@@ -22,4 +22,4 @@ class RankedLogger(logging.LoggerAdapter):
         assert rank == 0, "Expect rank to be 0 when using rank_zero_only"
 
         msg = rank_prefixed_message(msg, rank)
-        self.logger.log(level, msg)
+        self.logger.log(level, msg, *args, **kwargs)

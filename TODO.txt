@@ -1,3 +1,4 @@
 1. add swanlab as logger
 2. fix linter error
 3. add data processing pipeline
+4; refactor tests/conftest.py

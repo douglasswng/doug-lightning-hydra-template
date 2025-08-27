@@ -8,12 +8,12 @@ from omegaconf import DictConfig
 from utils import (
     RankedLogger,
     exception_wrapper,
-    instantiate_loggers,
+    instantiate_exp_loggers,
     log_hyperparameters,
     process_extras,
 )
 
-log = RankedLogger(__name__)
+logger = RankedLogger(__name__)
 
 
 @exception_wrapper
@@ -28,31 +28,31 @@ def evaluate(cfg: DictConfig) -> tuple[dict[str, Any], dict[str, Any]]:
     """
     assert cfg.ckpt_path
 
-    log.info(f"Instantiating datamodule <{cfg.data._target_}>")
+    logger.info(f"Instantiating datamodule <{cfg.data._target_}>")
     datamodule: LightningDataModule = hydra.utils.instantiate(cfg.data)
 
-    log.info(f"Instantiating model <{cfg.model._target_}>")
+    logger.info(f"Instantiating model <{cfg.model._target_}>")
     model: LightningModule = hydra.utils.instantiate(cfg.model)
 
-    log.info("Instantiating loggers...")
-    logger: list[Logger] = instantiate_loggers(cfg.get("logger"))
+    logger.info("Instantiating loggers...")
+    exp_loggers: list[Logger] = instantiate_exp_loggers(cfg.get("loggers"))
 
-    log.info(f"Instantiating trainer <{cfg.trainer._target_}>")
-    trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=logger)
+    logger.info(f"Instantiating trainer <{cfg.trainer._target_}>")
+    trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=exp_loggers)
 
     object_dict = {
         "cfg": cfg,
         "datamodule": datamodule,
         "model": model,
-        "logger": logger,
+        "exp_loggers": exp_loggers,
         "trainer": trainer,
     }
 
-    if logger:
-        log.info("Logging hyperparameters!")
+    if exp_loggers:
+        logger.info("Logging hyperparameters!")
         log_hyperparameters(object_dict)
 
-    log.info("Starting testing!")
+    logger.info("Starting testing!")
     trainer.test(model=model, datamodule=datamodule, ckpt_path=cfg.ckpt_path)
 
     # for predictions use trainer.predict(...)
