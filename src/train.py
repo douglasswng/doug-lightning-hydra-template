@@ -16,7 +16,7 @@ from utils import (
     task_wrapper,
 )
 
-log = RankedLogger(__name__, rank_zero_only=True)
+log = RankedLogger(__name__)
 
 
 @task_wrapper

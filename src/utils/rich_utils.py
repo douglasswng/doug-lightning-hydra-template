@@ -11,7 +11,7 @@ from rich.prompt import Prompt
 
 from utils.pylogger import RankedLogger
 
-log = RankedLogger(__name__, rank_zero_only=True)
+log = RankedLogger(__name__)
 
 
 @rank_zero_only

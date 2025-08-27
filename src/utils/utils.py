@@ -8,7 +8,7 @@ from omegaconf import DictConfig
 from utils.pylogger import RankedLogger
 from utils.rich_utils import enforce_tags, print_config_tree
 
-log = RankedLogger(__name__, rank_zero_only=True)
+log = RankedLogger(__name__)
 
 
 def extras(cfg: DictConfig) -> None:

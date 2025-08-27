@@ -5,7 +5,7 @@ from omegaconf import DictConfig
 
 from utils.pylogger import RankedLogger
 
-log = RankedLogger(__name__, rank_zero_only=True)
+log = RankedLogger(__name__)
 
 
 def instantiate_callbacks(callbacks_cfg: DictConfig) -> list[Callback]:
