@@ -21,7 +21,7 @@ defaults:
   - hparams_search: null
 
   # debugging config (enable through command line, e.g. `python train.py debug=default)
-  - debug: null
+  - debug: default
 
 # task name, determines output directory path
 task_name: "train"

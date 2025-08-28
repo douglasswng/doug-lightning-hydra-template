@@ -2,6 +2,7 @@ from typing import Any
 
 import torch
 from lightning import LightningDataModule
+from lightning.fabric.utilities import AttributeDict
 from torch.utils.data import ConcatDataset, DataLoader, Dataset, random_split
 from torchvision.datasets import MNIST
 from torchvision.transforms import transforms
@@ -74,6 +75,9 @@ class MNISTDataModule(LightningDataModule):
         # also ensures init params will be stored in ckpt
         self.save_hyperparameters(logger=False)
 
+        assert isinstance(self.hparams, AttributeDict)
+        self.hparams: AttributeDict
+
         # data transformations
         self.transforms = transforms.Compose(
             [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
@@ -139,44 +143,40 @@ class MNISTDataModule(LightningDataModule):
                 generator=torch.Generator().manual_seed(42),
             )
 
+    def _create_dataloader(
+        self, dataset: Dataset | None, shuffle: bool
+    ) -> DataLoader[Any]:
+        if dataset is None:
+            raise ValueError("dataset is None")
+
+        return DataLoader(
+            dataset=dataset,
+            batch_size=self.batch_size_per_device,
+            num_workers=self.hparams.num_workers,
+            pin_memory=self.hparams.pin_memory,
+            shuffle=shuffle,
+        )
+
     def train_dataloader(self) -> DataLoader[Any]:
         """Create and return the train dataloader.
 
         :return: The train dataloader.
         """
-        return DataLoader(
-            dataset=self.data_train,
-            batch_size=self.batch_size_per_device,
-            num_workers=self.hparams.num_workers,
-            pin_memory=self.hparams.pin_memory,
-            shuffle=True,
-        )
+        return self._create_dataloader(self.data_train, shuffle=True)
 
     def val_dataloader(self) -> DataLoader[Any]:
         """Create and return the validation dataloader.
 
         :return: The validation dataloader.
         """
-        return DataLoader(
-            dataset=self.data_val,
-            batch_size=self.batch_size_per_device,
-            num_workers=self.hparams.num_workers,
-            pin_memory=self.hparams.pin_memory,
-            shuffle=False,
-        )
+        return self._create_dataloader(self.data_val, shuffle=False)
 
     def test_dataloader(self) -> DataLoader[Any]:
         """Create and return the test dataloader.
 
         :return: The test dataloader.
         """
-        return DataLoader(
-            dataset=self.data_test,
-            batch_size=self.batch_size_per_device,
-            num_workers=self.hparams.num_workers,
-            pin_memory=self.hparams.pin_memory,
-            shuffle=False,
-        )
+        return self._create_dataloader(self.data_test, shuffle=False)
 
     def teardown(self, stage: str | None = None) -> None:
         """Lightning hook for cleaning up after `trainer.fit()`, `trainer.validate()`,

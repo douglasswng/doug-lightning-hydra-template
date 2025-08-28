@@ -20,9 +20,6 @@ def instantiate_callbacks(callbacks_cfg: DictConfig) -> list[Callback]:
         logger.warning("No callback configs found! Skipping..")
         return callbacks
 
-    if not isinstance(callbacks_cfg, DictConfig):
-        raise TypeError("Callbacks config must be a DictConfig!")
-
     for cb_conf in callbacks_cfg.values():
         if isinstance(cb_conf, DictConfig) and "_target_" in cb_conf:
             logger.info(f"Instantiating callback <{cb_conf._target_}>")

@@ -2,6 +2,7 @@ from typing import Any
 
 import torch
 from lightning import LightningModule
+from lightning.fabric.utilities import AttributeDict
 from torchmetrics import MaxMetric, MeanMetric
 from torchmetrics.classification.accuracy import Accuracy
 
@@ -43,7 +44,7 @@ class MNISTLitModule(LightningModule):
         self,
         net: torch.nn.Module,
         optimizer: torch.optim.Optimizer,
-        scheduler: torch.optim.lr_scheduler,
+        scheduler: torch.optim.lr_scheduler.LRScheduler,
         compile: bool,
     ) -> None:
         """Initialize a `MNISTLitModule`.
@@ -57,6 +58,9 @@ class MNISTLitModule(LightningModule):
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
         self.save_hyperparameters(logger=False)
+
+        assert isinstance(self.hparams, AttributeDict)
+        self.hparams: AttributeDict
 
         self.net = net
 
@@ -210,6 +214,9 @@ class MNISTLitModule(LightningModule):
 
         :return: A dict containing the configured optimizers and learning-rate schedulers to be used for training.
         """
+        if self.trainer.model is None:
+            raise ValueError("Trainer model is None")
+
         optimizer = self.hparams.optimizer(params=self.trainer.model.parameters())
         if self.hparams.scheduler is not None:
             scheduler = self.hparams.scheduler(optimizer=optimizer)
@@ -223,7 +230,3 @@ class MNISTLitModule(LightningModule):
                 },
             }
         return {"optimizer": optimizer}
-
-
-if __name__ == "__main__":
-    _ = MNISTLitModule(None, None, None, None)

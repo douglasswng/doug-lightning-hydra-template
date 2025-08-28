@@ -1,4 +1,4 @@
 1. add swanlab as logger
 2. fix linter error
 3. add data processing pipeline
-4; refactor tests/conftest.py
+4. deal with warning messages when doing pytest tests/test_eval.py
