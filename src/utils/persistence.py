@@ -7,6 +7,7 @@ import rich.tree
 from lightning import LightningModule, Trainer
 from lightning_utilities.core.rank_zero import rank_zero_only
 from omegaconf import DictConfig, OmegaConf
+from omegaconf.errors import InterpolationToMissingValueError
 from rich.console import Console
 
 from utils.ranked_logger import RankedLogger
@@ -24,10 +25,7 @@ def _create_config_tree(cfg: DictConfig) -> rich.tree.Tree:
         if isinstance(config_group, DictConfig):
             try:
                 branch_content = OmegaConf.to_yaml(config_group, resolve=True)
-            except Exception as e:
-                # If interpolation fails (e.g., missing hydra.job.num in single runs),
-                # fall back to unresolved YAML
-                logger.warning(f"Failed to resolve interpolations for {field}: {e}")
+            except InterpolationToMissingValueError:
                 branch_content = OmegaConf.to_yaml(config_group, resolve=False)
         else:
             branch_content = str(config_group)
