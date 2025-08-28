@@ -1,13 +1,14 @@
 from typing import Any
 
 import hydra
-from lightning import LightningDataModule, LightningModule, Trainer
+from lightning import Callback, LightningDataModule, LightningModule, Trainer
 from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig
 
 from utils import (
     RankedLogger,
     exception_wrapper,
+    instantiate_callbacks,
     instantiate_exp_loggers,
     log_hyperparameters,
     process_extras,
@@ -34,11 +35,16 @@ def evaluate(cfg: DictConfig) -> tuple[dict[str, Any], dict[str, Any]]:
     logger.info(f"Instantiating model <{cfg.model._target_}>")
     model: LightningModule = hydra.utils.instantiate(cfg.model)
 
+    logger.info("Instantiating callbacks...")
+    callbacks: list[Callback] = instantiate_callbacks(cfg.get("callbacks"))
+
     logger.info("Instantiating loggers...")
     exp_loggers: list[Logger] = instantiate_exp_loggers(cfg.get("loggers"))
 
     logger.info(f"Instantiating trainer <{cfg.trainer._target_}>")
-    trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=exp_loggers)
+    trainer: Trainer = hydra.utils.instantiate(
+        cfg.trainer, callbacks=callbacks, logger=exp_loggers
+    )
 
     object_dict = {
         "cfg": cfg,

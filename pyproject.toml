@@ -28,6 +28,7 @@ markers = [
 filterwarnings = [
     "ignore:GPU available but not used:UserWarning",  # explicitly use CPU for tests
     "ignore:.*does not have many workers:UserWarning",  # explicitly use 0 workers for tests
+    "ignore:Checkpoint directory .* exists and is not empty:UserWarning",  # non-empty directory when resuming training
 ]
 
 [tool.ruff]

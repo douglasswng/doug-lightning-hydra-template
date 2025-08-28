@@ -59,6 +59,7 @@ class MNISTDataModule(LightningDataModule):
         train_val_test_split: tuple[int, int, int] = (55_000, 5_000, 10_000),
         batch_size: int = 64,
         num_workers: int = 0,
+        persistent_workers: bool = False,
         pin_memory: bool = False,
     ) -> None:
         """Initialize a `MNISTDataModule`.
@@ -149,12 +150,16 @@ class MNISTDataModule(LightningDataModule):
         if dataset is None:
             raise ValueError("dataset is None")
 
+        persistent_workers = (
+            self.hparams.persistent_workers if self.hparams.num_workers > 0 else False
+        )
         return DataLoader(
             dataset=dataset,
             batch_size=self.batch_size_per_device,
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
             shuffle=shuffle,
+            persistent_workers=persistent_workers,
         )
 
     def train_dataloader(self) -> DataLoader[Any]:

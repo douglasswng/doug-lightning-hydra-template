@@ -94,12 +94,11 @@ def test_train_resume(tmp_path: Path, cfg_train: DictConfig) -> None:
     assert (files / "epoch_000.ckpt").exists()
 
     with open_dict(cfg_train):
-        cfg_train.ckpt_path = str(tmp_path / "checkpoints" / "last.ckpt")
+        cfg_train.ckpt_path = str(files / "last.ckpt")
         cfg_train.trainer.max_epochs = 2
 
     metric_dict_2, _ = train(cfg_train)
 
-    files = tmp_path / "checkpoints"
     assert (files / "epoch_001.ckpt").exists()
     assert not (files / "epoch_002.ckpt").exists()
 
