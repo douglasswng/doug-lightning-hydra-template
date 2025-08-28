@@ -1,7 +1,9 @@
 import platform
 
-import pkg_resources
-from lightning.fabric.accelerators import TPUAccelerator
+# Use importlib.metadata for Python 3.8+ or importlib_metadata for older versions
+from importlib import metadata
+
+from lightning.fabric.accelerators.xla import XLAAccelerator
 
 
 def _package_available(package_name: str) -> bool:
@@ -12,12 +14,13 @@ def _package_available(package_name: str) -> bool:
     :return: `True` if the package is available. `False` otherwise.
     """
     try:
-        return pkg_resources.require(package_name) is not None
-    except pkg_resources.DistributionNotFound:
+        metadata.version(package_name)
+        return True
+    except metadata.PackageNotFoundError:
         return False
 
 
-_TPU_AVAILABLE = TPUAccelerator.is_available()
+_XLA_AVAILABLE = XLAAccelerator.is_available()
 
 _IS_WINDOWS = platform.system() == "Windows"
 
