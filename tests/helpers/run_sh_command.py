@@ -1,20 +1,18 @@
+# Replace the current run_sh_command.py with:
+import subprocess  # nosec: B404
+import sys
+
 import pytest
-
-from tests.helpers.package_available import _SH_AVAILABLE
-
-if _SH_AVAILABLE:
-    import sh
 
 
 def run_sh_command(command: list[str]) -> None:
-    """Default method for executing shell commands with `pytest` and `sh` package.
+    """Execute shell commands using subprocess instead of sh library.
 
     :param command: A list of shell commands as strings.
     """
-    msg = None
     try:
-        sh.Command("python")(command)
-    except sh.ErrorReturnCode as e:
-        msg = e.stderr.decode()
-    if msg:
-        pytest.fail(reason=msg)
+        subprocess.run(  # nosec: B603
+            [sys.executable, *command], capture_output=True, text=True, check=True
+        )
+    except subprocess.CalledProcessError as e:
+        pytest.fail(reason=e.stderr)

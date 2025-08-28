@@ -28,8 +28,8 @@ def cfg_train_global() -> DictConfig:
             cfg.trainer.devices = 1
             cfg.data.num_workers = 0
             cfg.data.pin_memory = False
-            cfg.logger = None
             cfg.extras.print_config = False
+            cfg.logger = None
 
     return cfg
 
