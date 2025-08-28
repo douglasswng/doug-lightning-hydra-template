@@ -42,7 +42,8 @@ def save_config(cfg: DictConfig) -> None:
     tree = _create_config_tree(cfg)
 
     # Print to console
-    rich.print(tree)
+    if cfg.extras.print_config:
+        rich.print(tree)
 
     # Save to file
     output_file = Path(cfg.paths.config_path)
