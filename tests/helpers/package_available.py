@@ -1,6 +1,4 @@
 import platform
-
-# Use importlib.metadata for Python 3.8+ or importlib_metadata for older versions
 from importlib import metadata
 
 from lightning.fabric.accelerators.xla import XLAAccelerator
