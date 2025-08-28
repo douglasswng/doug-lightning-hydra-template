@@ -3,6 +3,7 @@ from typing import Any
 import hydra
 import lightning as L
 from lightning import Callback, LightningDataModule, LightningModule, Trainer
+from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig
 
@@ -80,6 +81,9 @@ def train(cfg: DictConfig) -> tuple[dict[str, Any], dict[str, Any]]:
 
     if cfg.get("test"):
         logger.info("Starting testing!")
+        if not isinstance(trainer.checkpoint_callback, ModelCheckpoint):
+            raise ValueError("Need checkpoint callback to test!")
+
         ckpt_path = trainer.checkpoint_callback.best_model_path
         if ckpt_path == "":
             logger.warning("Best ckpt not found! Using current weights for testing...")
